@@ -11,7 +11,6 @@ import UIKit
 // model of conversion
 
 class AsteMuunnos {
-    var tulos: String = "Tulos"
     
     // Celsiusaste Fahrenheitiksi
     
@@ -38,21 +37,28 @@ class AsteMuunnos {
 
 class ViewController: UIViewController {
 
-    @IBAction func celsius(sender: UITextField) {
+//  Convert C to F
+    @IBAction func calcCtoF(sender: UIButton) {
         let work = AsteMuunnos()
-        tulokset.text = "C -> F: " + work.cToF(sender.text)
+        tulokset.text = "C " + work.cToF(inputValueC.text) + " F"
+        
     }
     
-    @IBAction func fahrenheit(sender: UITextField) {
+ //   Convert F to C
+    @IBAction func calcFtoC(sender: UIButton) {
         let work2 = AsteMuunnos()
-        tulokset.text = "F -> C: " + work2.fToC(sender.text)
+        tulokset.text = "F " + work2.fToC(inputValueF.text) + " C"
     }
-    
+
+//  Knots to km/h
     @IBAction func calcSpeedsButton(sender: UIButton) {
         let work3 = AsteMuunnos()
-        tulokset2.text = "KNOT -> km/h: " + work3.knotsToKmph(inputValueKnots.text)
+        tulokset2.text = "KNOT " +
+            work3.knotsToKmph(inputValueKnots.text) + " km/h"
     }
     
+    @IBOutlet weak var inputValueC: UITextField!
+    @IBOutlet weak var inputValueF: UITextField!
     @IBOutlet weak var inputValueKnots: UITextField!
     
     @IBOutlet weak var tulokset: UILabel!
