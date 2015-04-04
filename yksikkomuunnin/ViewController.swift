@@ -37,24 +37,48 @@ class AsteMuunnos {
 
 class ViewController: UIViewController {
 
+// Customize buttons
+    func customButtons(argBut: UIButton) {
+        argBut.backgroundColor = UIColor.whiteColor()
+        argBut.layer.cornerRadius = 5
+        argBut.layer.masksToBounds = true
+    }
+
+    func customLabels(argLab: UILabel) {
+        argLab.backgroundColor = UIColor.whiteColor()
+        argLab.layer.cornerRadius = 5
+        argLab.layer.masksToBounds = true
+    }
+
+    
 //  Convert C to F
     @IBAction func calcCtoF(sender: UIButton) {
         let work = AsteMuunnos()
-        tulokset.text = "C " + work.cToF(inputValueC.text) + " F"
-        
+        let txCopy = inputValueC.text
+        let gotvalue = work.cToF(txCopy)
+        tulokset.text = "\(txCopy) C = \(gotvalue) F"
+        inputValueF.text = gotvalue
+        customButtons(sender)
     }
     
  //   Convert F to C
     @IBAction func calcFtoC(sender: UIButton) {
         let work2 = AsteMuunnos()
-        tulokset.text = "F " + work2.fToC(inputValueF.text) + " C"
+        let txCopy = inputValueF.text
+        let gotvalue = work2.fToC(txCopy)
+
+        tulokset.text = "\(txCopy) F = \(gotvalue) C"
+        inputValueC.text = gotvalue
+        customButtons(sender)
     }
 
 //  Knots to km/h
     @IBAction func calcSpeedsButton(sender: UIButton) {
         let work3 = AsteMuunnos()
-        tulokset2.text = "KNOT " +
-            work3.knotsToKmph(inputValueKnots.text) + " km/h"
+        let txCopy = inputValueKnots.text
+        tulokset2.text = "\(txCopy) KNOT = \(work3.knotsToKmph(txCopy)) km/h"
+        
+        customButtons(sender)
     }
     
     @IBOutlet weak var inputValueC: UITextField!
@@ -67,7 +91,13 @@ class ViewController: UIViewController {
     
     override func viewDidLoad() {
         tulokset.text = "Temperature"
+        tulokset.textColor = UIColor.redColor()
+        customLabels(tulokset)
+        
         tulokset2.text = "Speed"
+        customLabels(tulokset2)
+        tulokset2.textColor = UIColor.blueColor()
+        
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
     }
