@@ -23,15 +23,33 @@ class AsteMuunnos {
 // Convert Fahrenheits to Celsius
     func fToC(xc: NSString) -> String  {
         let x: Double = xc.doubleValue
-        let y = String(format: "%5.0f", (5*(x - 32)/9))
+        let y = String(format: "%5.1f", (5*(x - 32)/9))
         return y
     }
 
     // Convert Knots to km/h
     func knotsToKmph(xc: NSString) ->String  {
         let x: Double = xc.doubleValue
-        let y = String(format: "%5.0f", (1.852*x))
+        let y = String(format: "%5.1f", (1.852*x))
         return y
+    }
+    
+    // Convert km to miles
+    func kmToMile(xc: NSString) -> String {
+        let x: Double = xc.doubleValue
+        var y: String = String(format: "%5.1f", (0.621371192*x))
+        return y
+    
+    
+    }
+    
+    // Convert miles to km
+    func milesToKm(xc: NSString) -> String {
+        let x: Double = xc.doubleValue
+        var y: String = String(format: "%5.1f", (1.60934*x))
+        return y
+        
+        
     }
 } // End of class
 
@@ -72,6 +90,29 @@ class ViewController: UIViewController {
         customButtons(sender)
     }
 
+//  km to miles
+    
+    @IBAction func calcKmToMi(sender: UIButton) {
+        let work2 = AsteMuunnos()
+        let txCopy = inputValueKm.text
+        let gotvalue = work2.kmToMile(txCopy)
+        
+        tulokset.text = "\(txCopy) km = \(gotvalue) Miles"
+        inputValueMi.text = gotvalue
+        customButtons(sender)
+    }
+
+//  Miles to km
+    @IBAction func calcMiToKm(sender: UIButton) {
+        let work2 = AsteMuunnos()
+        let txCopy = inputValueMi.text
+        let gotvalue = work2.milesToKm(txCopy)
+        
+        tulokset.text = "\(txCopy) MI = \(gotvalue) km"
+        inputValueKm.text = gotvalue
+        customButtons(sender)
+    }
+    
 //  Knots to km/h
     @IBAction func calcSpeedsButton(sender: UIButton) {
         let work3 = AsteMuunnos()
@@ -84,6 +125,8 @@ class ViewController: UIViewController {
     @IBOutlet weak var inputValueC: UITextField!
     @IBOutlet weak var inputValueF: UITextField!
     @IBOutlet weak var inputValueKnots: UITextField!
+    @IBOutlet weak var inputValueKm: UITextField!
+    @IBOutlet weak var inputValueMi: UITextField!
     
     @IBOutlet weak var tulokset: UILabel!
     
