@@ -33,11 +33,18 @@ class AsteMuunnos {
         let y = String(format: "%5.1f", (1.852*x))
         return y
     }
-    
+
+    // Convert km/h to knots
+    func kmphToKnots(xc: NSString) ->String  {
+        let x: Double = xc.doubleValue
+        let y = String(format: "%5.1f", (x/1.852))
+        return y
+    }
+
     // Convert km to miles
     func kmToMile(xc: NSString) -> String {
         let x: Double = xc.doubleValue
-        var y: String = String(format: "%5.1f", (0.621371192*x))
+        let y: String = String(format: "%5.1f", (0.621371192*x))
         return y
     
     
@@ -117,16 +124,29 @@ class ViewController: UIViewController {
     @IBAction func calcSpeedsButton(sender: UIButton) {
         let work3 = AsteMuunnos()
         let txCopy = inputValueKnots.text
-        tulokset2.text = "\(txCopy) KNOT = \(work3.knotsToKmph(txCopy)) km/h"
-        
+        let gotvalue = work3.knotsToKmph(txCopy)
+        tulokset2.text = "\(txCopy) KNOT = \(gotvalue) km/h"
+        inputValueKmph.text = gotvalue
         customButtons(sender)
     }
+    
+// km/h to knots
+    @IBAction func calcKmphToKnot(sender: UIButton) {
+        let work3 = AsteMuunnos()
+        let txCopy = inputValueKmph.text
+        let gotvalue = work3.kmphToKnots(txCopy)
+        tulokset2.text = "\(txCopy) km/h = \(gotvalue) knot"
+        inputValueKnots.text = gotvalue
+        customButtons(sender)
+    }
+    
     
     @IBOutlet weak var inputValueC: UITextField!
     @IBOutlet weak var inputValueF: UITextField!
     @IBOutlet weak var inputValueKnots: UITextField!
     @IBOutlet weak var inputValueKm: UITextField!
     @IBOutlet weak var inputValueMi: UITextField!
+    @IBOutlet weak var inputValueKmph: UITextField!
     
     @IBOutlet weak var tulokset: UILabel!
     
