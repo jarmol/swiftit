@@ -8,6 +8,7 @@ let pi: Double = 3.1415926535897931
 
 // posixDays = julianDay - 2440587.5
 let posixDays = 20208.291701
+let tcurrent: Double = 1440*(posixDays - Double(Int(posixDays)))
 
 func julianCentury(epochDays: Double) -> Double {
    let numberJD = 2440587.5 + epochDays
@@ -58,7 +59,14 @@ print("Expected time  :        13:20:29")
 print("Sunset local time:    " + clocktimeFromMinutes(rawminutes: sunsetLST(cent: jCent, tz: tz, lat: lat, lon: lon)))
 print("Expected time:          21:56:27")
 print("Daylight duration     " + sunlightDuration(cent: jCent, lat: lat))
-
+print("True solar time         \(trueSolarTime(tcurrent: tcurrent, cent: jCent, lon: lon))")
+print("Expected time minutes   519.55 minutes")
+print("Hour angle              \(hourAngle(tcurrent: tcurrent, cent: jCent, lon: lon))")
+print("Expected result         -50.112 °")
+print("Solar zenith angle      \(solarZenithAngle(tcurrent: tcurrent, cent: jCent, lat: lat, lon: lon)) °")
+print("Expected value          60.8016 °")
+print("Solar elevation angle   \(90.0 - solarZenithAngle(tcurrent: tcurrent, cent: jCent, lat: lat, lon: lon)) °")
+print("Expected value          29.1984 °")
 
 func geomMeanLong(cent: Double) -> Double {
    let geomMeanLong = nonIntRem(x: (280.46646 + (cent * (36000.76983 + cent * 0.0003032))), y: 360.0)
@@ -169,6 +177,28 @@ let minutes = Int(rawminutes) % 60
 let seconds = Int(rawseconds) % 60
 
 return  "  " + String(hours) + ":" + String(minutes)  + ":" + String(seconds)
+}
+
+
+func trueSolarTime(tcurrent: Double, cent: Double, lon: Double) -> Double {
+    tcurrent + eqTime(cent: cent) + 4.0 * lon
+}
+
+
+func hourAngle(tcurrent: Double, cent: Double, lon: Double) -> Double {
+    let tst: Double = trueSolarTime(tcurrent: tcurrent, cent: cent, lon: lon) / 4.0
+    var res: Double = tst
+    if tst < 0 {res = tst + 180.0}
+    if tst > 0 {res = tst - 180.0}
+    return res
+}
+
+
+func solarZenithAngle(tcurrent: Double, cent: Double, lat: Double, lon: Double) -> Double {
+    let sins: Double = sin(rad(g: lat)) * sin(rad(g: sunDeclin(cent: cent)))
+    let coss: Double = cos(rad(g: lat)) * cos(rad(g: sunDeclin(cent: cent)))
+      * cos(rad(g: hourAngle(tcurrent: tcurrent, cent: cent, lon: lon)))
+    return deg(r: acos(sins + coss))
 }
 
 
