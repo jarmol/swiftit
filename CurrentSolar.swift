@@ -39,7 +39,7 @@ if let stringArray = array {
             https://www.timeanddate.com/sun/finland/helsinki
             https://www.timeanddate.com/sun/spain/murcia
             """)
-    } else { 
+    } else {
         print(stringArray)
         print("City " + stringArray[0])
         let lat = Double(stringArray[1]) ?? 40.713
@@ -58,31 +58,42 @@ if let stringArray = array {
 
         let jCent = julianCentury(epochDays: posixDays)
         let midsummerLat = 89.16718 - sunDeclin(cent: jCent)
-        
+        let midwinterLat: Double = 90.833 - abs(sunDeclin(cent: jCent))
+
         //  print("Posix Days     \(posixDays)")
         //  print("Julian Century \(jCent)")
         let line = String(repeating: "_", count: 45)
         print(line)
         print(String(format: "Sun declination angle  %8.5f °", sunDeclin(cent: jCent)))
-        if lat < midsummerLat {
-        print(
-            "Sunrise local time:   "
-                + clocktimeFromMinutes(
-                    rawminutes: sunriseLST(cent: jCent, tz: tz, lat: lat, lon: lon)))
-        }else {print("It's now Arctic midsummer at this latitude, Sun visible all day!")}
+        if lat < midsummerLat && sunDeclin(cent: jCent) > 0.0 {
+            print(
+                "Sunrise local time:   "
+                    + clocktimeFromMinutes(
+                        rawminutes: sunriseLST(cent: jCent, tz: tz, lat: lat, lon: lon)))
+        } else if sunDeclin(cent: jCent) > 0.0 && lat > midsummerLat {
+            print("It's now Arctic midsummer at this latitude, Sun visible all day!")
+        } else if sunDeclin(cent: jCent) < 0.0 && lat > midwinterLat {
+            print("It's arctic winter now and Sun is all day below horizon!")
+        }
 
         print(
             "Solar noon time:      "
                 + clocktimeFromMinutes(
                     rawminutes: solarNoonLST(cent: jCent, tz: tz, lat: lat, lon: lon)))
-        
-        if lat < midsummerLat {
-        print(
-            "Sunset local time:    "
-                + clocktimeFromMinutes(
-                    rawminutes: sunsetLST(cent: jCent, tz: tz, lat: lat, lon: lon)))
-        print("Daylight duration     " + sunlightDuration(cent: jCent, lat: lat))
-        }else {print("There is no Sunset during the arctic midsummer!")}
+
+        if lat < midsummerLat && sunDeclin(cent: jCent) > 0.0
+            || lat < midwinterLat && sunDeclin(cent: jCent) < 0.0
+        {
+            print(
+                "Sunset local time:    "
+                    + clocktimeFromMinutes(
+                        rawminutes: sunsetLST(cent: jCent, tz: tz, lat: lat, lon: lon)))
+            print("Daylight duration     " + sunlightDuration(cent: jCent, lat: lat))
+        } else if sunDeclin(cent: jCent) > 0.0 && lat > midsummerLat {
+            print("There is no Sunset during the arctic midsummer!")
+        } else if sunDeclin(cent: jCent) < 0.0 && lat > midwinterLat {
+            print("It's arctic midwinter, there is no sunrise today")
+        }
 
         let zen = solarZenithAngle(tcurrent: tcurrent, cent: jCent, lat: lat, lon: lon)
         let el1 = 90.0 - zen
@@ -99,7 +110,7 @@ if let stringArray = array {
         print(azimuthS)
 
         print(line)
-        
+
         print(
             """
             *) Azimuth angle is the direction where the
@@ -111,7 +122,7 @@ if let stringArray = array {
                N = 360°
             """
         )
-        
+
     }
 }
 
@@ -126,14 +137,13 @@ func geomMeanLong(cent: Double) -> Double {
     return geomMeanLong
 }
 
-
 func eccOrbit(cent: Double) -> Double {
     0.016708634 - cent * (0.000042037 + 0.0000001267 * cent)
 }
 
 func geomMeanAnom(cent: Double) -> Double {
     let geomMeanAnom = fmod(
-       (357.52911 + cent * (35999.05029 - 0.0001537 * cent)), 360.0)
+        (357.52911 + cent * (35999.05029 - 0.0001537 * cent)), 360.0)
     return geomMeanAnom
 }
 
@@ -215,8 +225,11 @@ func sunsetLST(cent: Double, tz: Double, lat: Double, lon: Double) -> Double {
 // Sunlight duration
 func sunlightDuration(cent: Double, lat: Double) -> String {
     let mins = 8 * haSunrise(cent: cent, lat: lat)
-    if mins > 1440.0 {return "No sunset in arctic summer"}
-    else {return clocktimeFromMinutes(rawminutes: mins)}
+    if mins > 1440.0 {
+        return "No sunset in arctic summer"
+    } else {
+        return clocktimeFromMinutes(rawminutes: mins)
+    }
 }
 
 func clocktimeFromMinutes(rawminutes: Double) -> String {
@@ -226,14 +239,14 @@ func clocktimeFromMinutes(rawminutes: Double) -> String {
     let hours = Int(rawhours)
     let minutes = Int(rawminutes) % 60
     let seconds = Int(rawseconds) % 60
-    return (" " + twoDigitsTimes(digit: hours) + ":"
-    + twoDigitsTimes(digit: minutes) + ":" 
-            + twoDigitsTimes(digit: seconds))
+    return
+        (" " + twoDigitsTimes(digit: hours) + ":"
+        + twoDigitsTimes(digit: minutes) + ":"
+        + twoDigitsTimes(digit: seconds))
 }
 
 func twoDigitsTimes(digit: Int) -> String {
-    let ts = if (digit > 9) {String(digit)}
-        else {"0" + String(digit)}
+    let ts = if digit > 9 { String(digit) } else { "0" + String(digit) }
     return ts
 }
 
