@@ -1,31 +1,43 @@
 //
 //  ContentView.swift
-//  macSolar
-//
+//  SunCity
+//  with new menu
 //  Created by Polarit on 29.5.2025.
 //
+// https://www.advancedswift.com/local-utc-date-format-swift/
 
 import SwiftUI
 
-let now = Date()
 // List of cities
 let cities = [
-    "Helsinki", "Stockholm", "Oslo", "Berlin", "München", "Wien", "Madrid", "Malaga", "Rovaniemi",
-    "Utsjoki",
+    "Helsinki", "Stockholm", "Oslo", "Berlin", "München", "Wien", "Washington D.C.",
+    "Anchorage Alaska", "Madrid", "Malaga", "Rovaniemi",
+    "Utsjoki", "Cape of Good Hope", "Tierra del Fuego",
+]
+
+let zoneNames: [String] = [
+    "EEST", "CEST", "CEST", "CEST", "CEST", "CEST",
+    "EDT", "AKDT", "CEST", "CEST", "EEST", "EEST",
+    "SAST", "ART",
 ]
 
 // City info
-let cityData: [String: (latitude: Double, longitude: Double, timezone: Double)] = [
-    "Helsinki": (60.1695, 24.9354, 3.0),
-    "Stockholm": (59.3293, 18.0686, 2.0),
-    "Oslo": (59.9139, 10.7522, 2.0),
-    "Berlin": (52.5200, 13.4050, 2.0),
-    "München": (48.138, 11.575, 2.0),
-    "Wien": (48.2195, 16.3785, 2.0),
-    "Madrid": (40.419, -3.693, 2.0),
-    "Malaga": (36.720, -4.415, 2.0),
-    "Rovaniemi": (66.502, 25.724, 3.0),
-    "Utsjoki": (69.90954, 27.0295, 3.0),
+
+let cityData: [[Double]] = [
+    [60.1695, 24.9354, 3.0],  // EEST UTC+3
+    [59.3293, 18.0686, 2.0],  // CET UTC+2
+    [59.9139, 10.7522, 2.0],
+    [52.5200, 13.4050, 2.0],
+    [48.138, 11.575, 2.0],
+    [48.2195, 16.3785, 2.0],
+    [38.905, -77.016, -4.0],  // EDT UTC-4
+    [61.183, -149.883, -8.0],  // AKDT UTC-8
+    [40.419, -3.693, 2.0],  // CEST UTC+2
+    [36.720, -4.415, 2.0],
+    [66.502, 25.724, 3.0],
+    [69.90954, 27.0295, 3.0],
+    [-34.3514, 18.483, 2.0],  // SAST UTC+2
+    [-54.80, -68.3, -3.0],  // ART UTC-3
 ]
 
 func julianCentury(epochDays: Double) -> Double {
@@ -236,11 +248,13 @@ struct ContentView: View {
     @State private var selectedCity: String = "Helsinki"
 
     var body: some View {
+        let now = Date()
         let posixDays = Double(now.timeIntervalSince1970) / (3600 * 24)
         let jCent = julianCentury(epochDays: posixDays)
         let tcurrent: Double = 1440 * (posixDays - Double(Int(posixDays)))
         let midsummerLat = 89.16718 - sunDeclin(cent: jCent)
         let midwinterLat: Double = 90.833 - abs(sunDeclin(cent: jCent))
+        //   let date = Date()
         VStack {
             Text("Suncalculator")
                 .font(.title.bold())
@@ -261,32 +275,45 @@ struct ContentView: View {
             .bold(true)
             .padding()
         }
-        .frame(width: 300, height: 50)
+        .frame(width: 300, height: 30)
         .padding()
-        let cityInfo = cityData[selectedCity]
-        let lat: Double = cityInfo!.latitude
-        let lon: Double = cityInfo!.longitude
-        let tz: Double = cityInfo!.timezone
+
+        let rownr = cities.firstIndex(of: selectedCity)!
+        let lat = cityData[rownr][0]
+        let lon = cityData[rownr][1]
+        let tz = cityData[rownr][2]
+        let tzName = zoneNames[rownr]
+        let tutc = if tz < 0.0 { "UTC" } else { "UTC+" }
+        let myLoc = Date().anotherTimeZoneDate(name: tzName)
         let zen = solarZenithAngle(tcurrent: tcurrent, cent: jCent, lat: lat, lon: lon)
         let el1 = 90.0 - zen
         let refr = atmosRefract(tcurrent: tcurrent, cent: jCent, lat: lat, lon: lon)
 
         VStack {
-            HStack {
-                Divider()
-                Text("   ")
-                Text(String(format: "Latitude %7.3f° Longitude %7.3f° Time Zone %4.1f h", lat, lon, tz))
-                    .background(Color.white)
-                    .foregroundColor(.blue)
-                    .padding(2)
-                    .border(.black)
-                    .frame(maxWidth: .infinity, alignment: .leadingLastTextBaseline)
-            }}
+            Text("Local time : \(myLoc) \(tzName) (\(tutc + String(tz)))")
+                .font(.largeTitle)
+        }
+
         VStack {
             HStack {
                 Divider()
                 Text("   ")
-                Text("Date and local time now:\n\(now)")
+                Text(
+                    String(
+                        format: "Latitude %7.3f° Longitude %7.3f° Time Zone %4.1f h", lat, lon, tz)
+                )
+                .background(Color.white)
+                .foregroundColor(.blue)
+                .padding(2)
+                .border(.black)
+                .frame(maxWidth: .infinity, alignment: .leadingLastTextBaseline)
+            }
+        }
+        VStack {
+            HStack {
+                Divider()
+                Text("   ")
+                Text("Date and Your local time now:\n\(now)")
                     .background(Color.white)
                     .foregroundColor(.blue)
                     .padding(2)
@@ -432,7 +459,16 @@ struct ContentView: View {
                 .foregroundStyle(.blue)
                 .padding(4)
                 .border(.gray)
-                .frame(maxWidth: .infinity, alignment: .leadingLastTextBaseline)
+                .frame(maxWidth: .infinity, minHeight: 80, alignment: .leadingLastTextBaseline)
+                Divider()
+            }
+            VStack {
+                Text("**Thank you**")
+                    .foregroundColor(.green)
+                Text("*for your interest*")
+                Text(
+                    "Look at the source   [code](https://raw.githubusercontent.com/jarmol/swiftit/refs/heads/master/SunCity/SunCity/ContentView.swift) in GitHub"
+                )
                 Divider()
             }
 
@@ -447,4 +483,13 @@ struct ContentView: View {
 
 #Preview {
     ContentView()
+}
+
+extension Date {
+    func anotherTimeZoneDate(name: String) -> String {
+        let dtf = DateFormatter()
+        dtf.timeZone = TimeZone(abbreviation: name)
+        dtf.dateFormat = "yyyy-MM-dd HH:mm:ss"
+        return dtf.string(from: self)
+    }
 }
