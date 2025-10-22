@@ -266,7 +266,15 @@ struct ContentView: View {
         let ts = if digit > 9 { String(digit) } else { "0" + String(digit) }
         return ts
     }
-    
+   
+    // Return ISO8601 string for a given Date in a specified time zone
+    func localTime(for date: Date, in timeZoneID: String) -> String {
+        let f = ISO8601DateFormatter()
+        f.formatOptions = [.withInternetDateTime]
+        f.timeZone = TimeZone(identifier: timeZoneID)
+        return f.string(from: date)
+    }
+
     var body: some View {
         // New picker menu - var body alkuun
         ScrollView {
@@ -317,10 +325,15 @@ struct ContentView: View {
                             .foregroundStyle(.green)
                     }
                     
-                    //        VStack(alignment: .leading) {
-                    Text("Timezone of \(city.name) \(tzFull)")
-                //   Text("Date and time there now \(selectLocTime)")
-                    
+                    Text("Helsinki: \(localTime(for: now, in: "Europe/Helsinki"))")
+                    switch city.name {
+                    case "Tokyo, Japan":
+                        Text("Tokyo: \(localTime(for: now, in: "Asia/Tokyo"))")
+                    case "Sydney, Australia":
+                        Text("Sydney: \(localTime(for: now, in: "Australia/Sydney"))")
+                    default:
+                        Text(" ")
+                    }
                     HStack {
                         Divider()
                         Text("Latitude " +
@@ -497,3 +510,4 @@ struct ContentView: View {
     #Preview {
         ContentView()
     }
+
