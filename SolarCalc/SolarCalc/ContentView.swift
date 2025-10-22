@@ -157,7 +157,7 @@ struct ContentView: View {
         if mins > 1440.0 {
             return "No sunset in arctic summer"
         } else {
-            return clocktimeFromMinutes(rawminutes: mins)
+            return timeStamp(posixMinutes: mins)
         }
     }
    
@@ -248,31 +248,25 @@ struct ContentView: View {
     func deg(r: Double) -> Double {
         180.0 * r / .pi
     }
-    
-    func clocktimeFromMinutes(rawminutes: Double) -> String {
-        // Converts minutes to normal clocktime
-        let rawhours: Double = rawminutes / 60.0
-        let rawseconds: Double = 60.0 * rawminutes
-        let hours = Int(rawhours)
-        let minutes = Int(rawminutes) % 60
-        let seconds = Int(rawseconds) % 60
-        let result = String(" " + twoDigitsTimes(digit: hours) + ":"
-                            + twoDigitsTimes(digit: minutes) + ":"
-                            + twoDigitsTimes(digit: seconds))
-        return result
-    }
-    
-    func twoDigitsTimes(digit: Int) -> String {
-        let ts = if digit > 9 { String(digit) } else { "0" + String(digit) }
-        return ts
-    }
-   
+  
+
     // Return ISO8601 string for a given Date in a specified time zone
     func localTime(for date: Date, in timeZoneID: String) -> String {
         let f = ISO8601DateFormatter()
         f.formatOptions = [.withInternetDateTime]
         f.timeZone = TimeZone(identifier: timeZoneID)
         return f.string(from: date)
+    }
+    
+    func timeStamp(posixMinutes: TimeInterval) -> String {
+        let posixSeconds: TimeInterval = posixMinutes * 60
+        let date = Date(timeIntervalSince1970: posixSeconds)
+
+        let formatter = DateFormatter()
+        formatter.dateFormat = "HH:mm:ss"
+        formatter.timeZone = TimeZone(secondsFromGMT: 0)
+
+    return formatter.string(from: date)
     }
 
     var body: some View {
@@ -302,11 +296,11 @@ struct ContentView: View {
             let lat: Double = city.latitude
             let lon: Double = city.longitude
             let tz: Double = hoursFromGMT
-            let tzi: Int = Int(tz)
+            //let tzi: Int = Int(tz)
             //let tzName: String = city.timeZoneID
-            let tutc: String = if tzi < 0 { "UTC" } else { "UTC+" }
-            let tzOffset: String = "\(tzi)"
-            let tzFull: String = "\(tutc)\(tzOffset)"
+            //let tutc: String = if tzi < 0 { "UTC" } else { "UTC+" }
+            //let tzOffset: String = "\(tzi)"
+            //let tzFull: String = "\(tutc)\(tzOffset)"
             // let selectLocTime: String = Date().anotherTimeZoneDate(name: tzOffset)
             let zen: Double = solarZenithAngle(tcurrent: tcurrent, cent: jCent, lat: lat, lon: lon)
             let el1: Double = 90.0 - zen
@@ -373,8 +367,7 @@ struct ContentView: View {
                             if lat < midsummerLat {
                                 Text(
                                     "Sunrise local time:   "
-                                    + clocktimeFromMinutes(
-                                        rawminutes: sunriseLST(cent: jCent, tz: tz, lat: lat, lon: lon))
+                                    + timeStamp(posixMinutes: sunriseLST(cent: jCent, tz: tz, lat: lat, lon: lon))
                                 )
                                 .bold()
                                 .foregroundStyle(.black)
@@ -396,8 +389,7 @@ struct ContentView: View {
                         Divider()
                         Text(
                             "Solar noon time:      "
-                            + clocktimeFromMinutes(
-                                rawminutes: solarNoonLST(cent: jCent, tz: tz, lat: lat, lon: lon))
+                            + timeStamp(posixMinutes: solarNoonLST(cent: jCent, tz: tz, lat: lat, lon: lon))
                         )
                         .foregroundStyle(.blue)
                         .background(Color.white)
@@ -414,8 +406,7 @@ struct ContentView: View {
                             Divider()
                             Text(
                                 "Sunset local time:    "
-                                + clocktimeFromMinutes(
-                                    rawminutes: sunsetLST(cent: jCent, tz: tz, lat: lat, lon: lon))
+                                + timeStamp(posixMinutes: sunsetLST(cent: jCent, tz: tz, lat: lat, lon: lon))
                             )
                             .bold()
                             .foregroundStyle(.black)
@@ -487,7 +478,7 @@ struct ContentView: View {
                             .foregroundColor(.green)
                         Text("*for your interest*")
                         Text(
-                            "Look at the source   [code](https://raw.githubusercontent.com/jarmol/swiftit/refs/heads/master/SunCity/SunCity/ContentView.swift) in GitHub"
+                            "Look at the source   [code](https://github.com/jarmol/swiftit/blob/master/SolarCalc/SolarCalc/ContentView.swift) in GitHub"
                         )
                         Divider()
                     }
