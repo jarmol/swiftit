@@ -29,11 +29,13 @@ struct ContentView: View {
     // Keep the cities list in one place and reuse it for both the data and default selection.
     private static let defaultCities: [City] = [
         City(name: "Helsinki",          latitude: 60.1695, longitude: 24.9354,  timeZoneID: "Europe/Helsinki"),
+        City(name: "London",            latitude: 51.5074, longitude: -0.1278,  timeZoneID: "Europe/London"),
         City(name: "Stockholm",         latitude: 59.3293, longitude: 18.0686,  timeZoneID: "Europe/Stockholm"),
         City(name: "Oslo",              latitude: 59.9139, longitude: 10.7522,  timeZoneID: "Europe/Oslo"),
         City(name: "Berlin",            latitude: 52.5200, longitude: 13.4050,  timeZoneID: "Europe/Berlin"),
         City(name: "München",           latitude: 48.1380, longitude: 11.5750,  timeZoneID: "Europe/Berlin"),
         City(name: "Wien",              latitude: 48.2195, longitude: 16.3785,  timeZoneID: "Europe/Vienna"),
+        City(name: "New York",          latitude: 40.7128, longitude: -74.0059,  timeZoneID: "America/New_York"),
         City(name: "Washington D.C.",   latitude: 38.9050, longitude: -77.0160, timeZoneID: "America/New_York"),
         City(name: "Anchorage Alaska",  latitude: 61.1830, longitude: -149.883, timeZoneID: "America/Anchorage"),
         City(name: "Madrid",            latitude: 40.4190, longitude: -3.6930,  timeZoneID: "Europe/Madrid"),
@@ -250,11 +252,11 @@ struct ContentView: View {
     }
   
 
-    // Return ISO8601 string for a given Date in a specified time zone
     func localTime(for date: Date, in timeZoneID: String) -> String {
-        let f = ISO8601DateFormatter()
-        f.formatOptions = [.withInternetDateTime]
+        let f = DateFormatter()
+        f.locale = Locale(identifier: "en_US_POSIX")
         f.timeZone = TimeZone(identifier: timeZoneID)
+        f.dateFormat = "HH:mm:ss ZZZZ"
         return f.string(from: date)
     }
     
@@ -296,12 +298,6 @@ struct ContentView: View {
             let lat: Double = city.latitude
             let lon: Double = city.longitude
             let tz: Double = hoursFromGMT
-            //let tzi: Int = Int(tz)
-            //let tzName: String = city.timeZoneID
-            //let tutc: String = if tzi < 0 { "UTC" } else { "UTC+" }
-            //let tzOffset: String = "\(tzi)"
-            //let tzFull: String = "\(tutc)\(tzOffset)"
-            // let selectLocTime: String = Date().anotherTimeZoneDate(name: tzOffset)
             let zen: Double = solarZenithAngle(tcurrent: tcurrent, cent: jCent, lat: lat, lon: lon)
             let el1: Double = 90.0 - zen
             let refr: Double = atmosRefract(tcurrent: tcurrent, cent: jCent, lat: lat, lon: lon)
@@ -321,6 +317,16 @@ struct ContentView: View {
                     
                     Text("Helsinki: \(localTime(for: now, in: "Europe/Helsinki"))")
                     switch city.name {
+                        case "London":
+                        Text("London: \(localTime(for: now, in: "Europe/London"))")
+                    case "Stockholm":
+                        Text("Stockholm: \(localTime(for: now, in: "Europe/Stockholm"))")
+                    case "Berlin":
+                        Text("Berlin: \(localTime(for: now, in: "Europe/Berlin"))")
+                    case "Washington D.C.":
+                        Text("Washington: \(localTime(for: now, in: "America/New_York"))")
+                    case "New York":
+                        Text("New York: \(localTime(for: now, in: "America/New_York"))")
                     case "Tokyo, Japan":
                         Text("Tokyo: \(localTime(for: now, in: "Asia/Tokyo"))")
                     case "Sydney, Australia":
