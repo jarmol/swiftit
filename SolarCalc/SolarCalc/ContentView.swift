@@ -1,6 +1,6 @@
 //
-//  ContentView.swift
 //  SolarCalc for iPhone 17 Pro simulator
+//  ContentView.swift
 //  Using the new data modell - all data in one table
 //  not using calendar base
 //  Created by Jarmo Lammi on 20.10.2025.
@@ -14,11 +14,13 @@ struct City: Identifiable, Hashable {
     let name: String
     let latitude: Double
     let longitude: Double
-    // Use canonical TimeZone identifier (DST handled automatically by Foundation).
-    let timeZoneID: String // Not used yet here!
+    // Use canonical TimeZone identifier
+    // (DST handled automatically by Foundation).
+    let timeZoneID: String
 
     var timeZone: TimeZone {
-        TimeZone(identifier: timeZoneID) ?? .gmt
+        TimeZone(identifier: timeZoneID) ??
+        .gmt
     }
 }
 
@@ -38,9 +40,13 @@ struct ContentView: View {
         City(name: "New York",          latitude: 40.7128, longitude: -74.0059,  timeZoneID: "America/New_York"),
         City(name: "Washington D.C.",   latitude: 38.9050, longitude: -77.0160, timeZoneID: "America/New_York"),
         City(name: "Anchorage Alaska",  latitude: 61.1830, longitude: -149.883, timeZoneID: "America/Anchorage"),
+        City(name: "Vancouver B.C.",    latitude: 49.2820, longitude: -123.1200, timeZoneID: "Canada/Pacific"),
         City(name: "Madrid",            latitude: 40.4190, longitude: -3.6930,  timeZoneID: "Europe/Madrid"),
         City(name: "Malaga",            latitude: 36.7200, longitude: -4.4150,  timeZoneID: "Europe/Madrid"),
+        City(name: "Barcelona",         latitude: 41.3860, longitude: 2.1730,  timeZoneID: "Europe/Madrid"),
+        City(name: "Murcia",            latitude: 37.9880, longitude: -1.1330,  timeZoneID: "Europe/Madrid"),
         City(name: "Kemi",              latitude: 65.7360, longitude: 24.5560,  timeZoneID: "Europe/Helsinki"),
+        City(name: "Tornio",            latitude: 65.9250, longitude: 25.3100,  timeZoneID: "Europe/Helsinki"),
         City(name: "Oulu",              latitude: 65.0140, longitude: 25.4730,  timeZoneID: "Europe/Helsinki"),
         City(name: "Rovaniemi",         latitude: 66.5020, longitude: 25.7240,  timeZoneID: "Europe/Helsinki"),
         City(name: "Utsjoki",           latitude: 69.90954, longitude: 27.0295, timeZoneID: "Europe/Helsinki"),
@@ -254,7 +260,7 @@ struct ContentView: View {
 
     func localTime(for date: Date, in timeZoneID: String) -> String {
         let f = DateFormatter()
-        f.locale = Locale(identifier: "en_US_POSIX")
+        f.locale = Locale(identifier: "UTC")
         f.timeZone = TimeZone(identifier: timeZoneID)
         f.dateFormat = "HH:mm:ss ZZZZ"
         return f.string(from: date)
@@ -290,8 +296,9 @@ struct ContentView: View {
             
             let now = Date()
             let posixDays = Double(now.timeIntervalSince1970) / (3600 * 24)
+            let posixMinutes =  24 * posixDays * 60
             let jCent = julianCentury(epochDays: posixDays)
-            let tcurrent: Double = 1440 * (posixDays - Double(Int(posixDays)))
+            let tcurrent: Double = fmod(posixMinutes,1440)
             let midsummerLat: Double = 89.16718 - sunDeclin(cent: jCent)
             let midwinterLat: Double = 90.833 - abs(sunDeclin(cent: jCent))
             
@@ -323,6 +330,10 @@ struct ContentView: View {
                         Text("Stockholm: \(localTime(for: now, in: "Europe/Stockholm"))")
                     case "Berlin":
                         Text("Berlin: \(localTime(for: now, in: "Europe/Berlin"))")
+                    case "Anchorage Alaska":
+                        Text("Anchorage: \(localTime(for: now, in: "America/Anchorage"))")
+                    case "Vancouver B.C.":
+                        Text("Vancouver B.C.: \(localTime(for: now, in: "Canada/Pacific"))")
                     case "Washington D.C.":
                         Text("Washington: \(localTime(for: now, in: "America/New_York"))")
                     case "New York":
