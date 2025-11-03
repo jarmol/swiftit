@@ -526,7 +526,8 @@ struct ContentView: View {
                             .foregroundColor(.green)
                         Text("*for your interest*")
                         Text(
-                            "Look at the source   [code](https://github.com/jarmol/swiftit/blob/master/SolarCalc/SolarCalc/ContentView.swift) in GitHub"
+                            "Look at the source   [code](https://raw.githubusercontent.com/jarmol/swiftit/refs/heads/master/HeliosMac/HeliosMac/ContentView.swift) in GitHub"
+                            
                         )
                         Divider()
                     }
