@@ -9,8 +9,7 @@
 import SwiftUI
 
 // MARK: - Data Model
-struct City: Identifiable, Hashable {
-    let id = UUID()
+struct City: Hashable {
     let name: String
     let latitude: Double
     let longitude: Double
